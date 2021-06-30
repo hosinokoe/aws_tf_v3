@@ -1,0 +1,17 @@
+variable "db_tag" {}
+variable "db_type" {}
+variable "db_name" {}
+variable "db_user" {}
+variable "db_pass" {}
+variable "protect_enable" {}
+variable "pf_enable" {}
+variable "rds_az_enable" {}
+variable "rds_az" {}
+variable "db_sg_id" {}
+variable "az1" {}
+variable "az2" {}
+variable "az3" {}
+#variable "vpc_id" {}
+variable "web_sg" {}
+#variable "admin_sg" {}
+#variable "bat_sg" {}

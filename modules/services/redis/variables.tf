@@ -1,0 +1,11 @@
+variable "redis_tag" {}
+variable "redis_type" {}
+variable "failover_enalbe" {}
+variable "redis_az_enable" {}
+variable "az1" {}
+variable "az2" {}
+variable "az3" {}
+variable "vpc_id" {}
+variable "web_sg" {}
+variable "admin_sg" {}
+#variable "bat_sg" {}
