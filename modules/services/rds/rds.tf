@@ -1,29 +1,15 @@
 resource "aws_db_subnet_group" "db-subnet" {
     name        = var.db_tag
-    subnet_ids  = [var.az1, var.az2, var.az3]
+    #subnet_ids  = [var.az1, var.az2, var.az3]
+    subnet_ids  = var.az3 == null ? [var.az1, var.az2] : [var.az1, var.az2, var.az3]
     tags = {
         Name = var.db_tag
     }
 }
 
-variable "parameters" {
-  description = "A list of DB parameters (map) to apply"
-  type        = list(map(string))
-  default     = [{ name = "character_set_client", value = "utf8"},
-    { name = "character_set_connection", value = "utf8"},
-    { name = "character_set_database", value = "utf8"},
-    { name = "character_set_results", value = "utf8"},
-    { name = "character_set_server", value = "utf8"},
-    { name = "collation_connection", value = "utf8_general_ci"},
-    { name = "collation_server", value = "utf8_general_ci"},
-    { name = "long_query_time", value = "1.2"},
-    { name = "slow_query_log", value = "1"},
-    { name = "time_zone", value = "Asia/Tokyo"}]
-}
-
 resource "aws_db_parameter_group" "mysql-para" {
   name = var.db_tag
-  family = "mysql5.7"
+  family = "mysql${var.db_para}"
   description = var.db_tag
 
   dynamic "parameter" {
@@ -31,7 +17,8 @@ resource "aws_db_parameter_group" "mysql-para" {
     content {
       name         = parameter.value.name
       value        = parameter.value.value
-      apply_method = lookup(parameter.value, "apply_method", null)
+      #apply_method = lookup(parameter.value, "apply_method", null)
+      apply_method = "pending-reboot"
     }
   }
 }
@@ -41,7 +28,7 @@ resource "aws_db_instance" "db" {
   allocated_storage    = 30
   storage_type         = "gp2"
   engine               = "mysql"
-  engine_version       = "5.7.31"
+  engine_version       = var.db_version
   instance_class       = var.db_type
   name                 = var.db_name
   username             = var.db_user
