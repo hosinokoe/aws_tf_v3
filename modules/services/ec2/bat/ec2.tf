@@ -16,14 +16,47 @@ resource "aws_instance" "ec2_bat" {
       Name    = "${var.bat_tag}0${count.index+1}"
     }
   }
-  vpc_security_group_ids = [var.bat_sg_id]
-  subnet_id     = count.index > 0 ? var.az2 : var.az1
+  vpc_security_group_ids = [aws_security_group.bat.id]
+  subnet_id     = var.azs[count.index % 3]
   disable_api_termination = var.protect_enable
   tags = {
     Name    = "${var.bat_tag}0${count.index+1}"
   }
 }
 
+resource "aws_security_group" "bat" {
+  name        = var.bat_tag
+  description = "${var.bat_tag} sg"
+  vpc_id = var.vpc_id
+
+  ingress {
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [var.admin_sg]
+    description     = "ssh"
+  }
+  ingress {
+    from_port       = 10050
+    to_port         = 10051
+    protocol        = "tcp"
+    security_groups = [var.admin_sg]
+    description     = "zabbix"
+  }
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = var.bat_tag
+  }
+}
+
 output "ec2_bat" {
   value = aws_instance.ec2_bat.*.private_ip
+}
+output "bat_sg" {
+  value = aws_security_group.bat.id
 }

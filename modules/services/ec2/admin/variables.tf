@@ -2,10 +2,10 @@ variable "ec2_ami" {}
 variable "snapshot_id" { default = null }
 variable "key" {}
 variable "protect_enable" {}
-variable "bat_count" { type = number }
-variable "bat_type" {}
-variable "bat_tag" {}
-variable "azs" {}
+variable "admin_type" {}
+variable "admin_tag" {}
+variable "az1" {}
 
 variable "vpc_id" {}
-variable "admin_sg" {}
+variable "ingress_rules_cidr" {}
+variable "egress_rules" {}

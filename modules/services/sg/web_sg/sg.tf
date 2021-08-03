@@ -55,16 +55,16 @@ resource "aws_security_group" "web" {
       cidr_blocks  = [lookup(ingress.value, "cidr_blocks")]
     }
   }
-  dynamic "egress" {
-    for_each = var.egress_rules_sg
-    content {
-      description      = lookup(egress.value, "description")
-      from_port        = lookup(egress.value, "from_port")
-      to_port          = lookup(egress.value, "to_port")
-      protocol         = lookup(egress.value, "protocol")
-      security_groups = [var.admin_sg]
-    }
-  }
+  # dynamic "egress" {
+  #   for_each = var.egress_rules_sg
+  #   content {
+  #     description      = lookup(egress.value, "description")
+  #     from_port        = lookup(egress.value, "from_port")
+  #     to_port          = lookup(egress.value, "to_port")
+  #     protocol         = lookup(egress.value, "protocol")
+  #     security_groups = [var.admin_sg]
+  #   }
+  # }
   dynamic "egress" {
     for_each = var.egress_rules
     content {

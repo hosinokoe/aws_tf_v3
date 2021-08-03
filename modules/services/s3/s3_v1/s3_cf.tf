@@ -45,15 +45,15 @@ resource "aws_s3_bucket_public_access_block" "s3_pri_acl" {
   restrict_public_buckets = true
 }
 
-resource "aws_iam_user" "zabbix" {
-  name = "zabbix"
-  path = "/users/"
-}
+# resource "aws_iam_user" "zabbix" {
+#   name = "zabbix"
+#   path = "/users/"
+# }
 
-resource "aws_iam_user_policy_attachment" "zabbix" {
-  user       = aws_iam_user.zabbix.name
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
-}
+# resource "aws_iam_user_policy_attachment" "zabbix" {
+#   user       = aws_iam_user.zabbix.name
+#   policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
+# }
 
 resource "aws_iam_user" "s3_uploads" {
   for_each = toset(var.s3_user)
