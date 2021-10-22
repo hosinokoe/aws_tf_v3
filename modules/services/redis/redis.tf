@@ -15,6 +15,18 @@ resource "aws_elasticache_parameter_group" "redis-group" {
   }
 }
 
+resource "aws_sns_topic" "redis" {
+  name              = "redis_event"
+  display_name = var.sns_display_name
+  kms_master_key_id = "alias/aws/sns"
+}
+
+resource "aws_sns_topic_subscription" "redis" {
+  topic_arn = aws_sns_topic.redis.arn
+  protocol  = "email"
+  endpoint  = "infra.list@maisiteng.com"
+}
+
 resource "aws_elasticache_replication_group" "redis" {
   auto_minor_version_upgrade    = false
   at_rest_encryption_enabled    = false
@@ -34,6 +46,8 @@ resource "aws_elasticache_replication_group" "redis" {
   snapshot_retention_limit      = 5
   snapshot_window               = "16:00-17:00"
   security_group_ids            = [aws_security_group.redis-sg.id]
+  notification_topic_arn        = aws_sns_topic.redis.arn
+  # notification_topic_status     = "active"
 }
 
 resource "aws_security_group" "redis-sg" {
@@ -55,6 +69,9 @@ resource "aws_security_group" "redis-sg" {
    tags = {
      Name = var.redis_tag
    }
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 output "redis_r53" {

@@ -103,6 +103,9 @@ resource "aws_security_group" "alb_sg" {
   tags = {
     Name = "${var.alb_tag} sg"
   }
+  lifecycle {
+      create_before_destroy = true
+  }
 }
 
 #output "ec2_admin_name" {

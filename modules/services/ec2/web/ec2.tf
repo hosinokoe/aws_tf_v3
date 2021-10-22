@@ -59,6 +59,9 @@ resource "aws_security_group" "web" {
   tags = {
     Name = var.web_tag
   }
+  lifecycle {
+      create_before_destroy = true
+  }
 }
 
 output "ec2_web" {

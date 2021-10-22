@@ -52,6 +52,9 @@ resource "aws_security_group" "bat" {
   tags = {
     Name = var.bat_tag
   }
+  lifecycle {
+      create_before_destroy = true
+  }
 }
 
 output "ec2_bat" {

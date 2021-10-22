@@ -72,7 +72,7 @@ resource "aws_lb" "alb" {
   subnets            = var.azs
   enable_deletion_protection = var.protect_enable
   tags = {
-    Name = "${var.alb_tag} alb"
+    Name = "${var.alb_tag}"
   }
 }
 
@@ -102,6 +102,9 @@ resource "aws_security_group" "alb_sg" {
   }
   tags = {
     Name = "${var.alb_tag} sg"
+  }
+  lifecycle {
+      create_before_destroy = true
   }
 }
 

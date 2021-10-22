@@ -59,6 +59,9 @@ resource "aws_security_group" "admin" {
   tags = {
     Name = var.admin_tag
   }
+  lifecycle {
+      create_before_destroy = true
+  }
 }
 
 output "admin" {

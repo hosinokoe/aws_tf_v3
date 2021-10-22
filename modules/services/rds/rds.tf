@@ -76,6 +76,9 @@ resource "aws_security_group" "db_sg" {
     tags = {
       Name = "${var.db_tag} sg"
     }
+    lifecycle {
+        create_before_destroy = true
+    }
 }
 
 output "rds_r53" {

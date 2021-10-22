@@ -78,6 +78,9 @@ resource "aws_security_group" "ftp" {
   tags = {
     Name = var.ftp_tag
   }
+  lifecycle {
+      create_before_destroy = true
+  }
 }
 
 output "ec2_ftp" {
