@@ -63,3 +63,6 @@ output "ec2_bat" {
 output "bat_sg" {
   value = aws_security_group.bat.id
 }
+output "bat_id" {
+  value = aws_instance.ec2_bat.*.id
+}
