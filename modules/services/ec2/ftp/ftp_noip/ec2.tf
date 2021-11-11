@@ -26,13 +26,13 @@ resource "aws_instance" "ec2_ftp" {
   }
 }
 
-resource "aws_eip" "ec2_ftp" {
-  instance = aws_instance.ec2_ftp.id
-  vpc      = true
-  tags = {
-    Name    = var.ftp_tag
-  }
-}
+# resource "aws_eip" "ec2_ftp" {
+#   instance = aws_instance.ec2_ftp.id
+#   vpc      = true
+#   tags = {
+#     Name    = var.ftp_tag
+#   }
+# }
 
 resource "aws_security_group" "ftp" {
   name        = var.ftp_tag
@@ -92,7 +92,4 @@ output "instance_id" {
 }
 output "ftp_sg" {
   value = aws_security_group.ftp.id
-}
-output "ftp_eip" {
-  value = aws_eip.ec2_ftp.public_ip
 }
