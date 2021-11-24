@@ -7,6 +7,6 @@ variable "redis_az_enable" {}
 variable "azs" {}
 variable "security_groups" {}
 variable "vpc_id" {}
-# variable "sns_display_name" {}
+variable "sns_display_name" { default = null }
 # variable "az3" { default = null }
 # variable "redis_sg_id" {}

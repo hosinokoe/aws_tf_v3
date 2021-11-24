@@ -16,6 +16,11 @@ GitHub地址: [https://github.com/hosinokoe/aws_tf_v3](https://github.com/hosino
 6. 安全组最好使用lifecycle，create before destroy，否则无法替换。
 7. rds如果使用multi-az，那么不能指定可用区。也即是AvailabilityZone在MultiAZ为true时，不能使用。
 8. rds的dbname不能使用-，但可以使用_
-9. elb name不能使用_，但可以使用-
+9. elb/db/redis/s3 name不能使用_，但可以使用-
 10. rds Performance Insights不支持t3.small及以下的实例
 11. cloudfront里的DefaultCacheBehavior->TargetOriginId必须跟Origins->Id一致
+12. rds/redis events的通知使用sns时，sns不能加密
+13. count跟for_each的区别。使用count时，创建的资源是连续的，如果某个资源不是最后创建的，删除会造成其他资源被误删。for_each时，创建的资源是分开的，删除某个资源并不会影响其他资源。
+14. for_each的值必须是已知的，无法引用变量，即使变量是已知的。
+15. NLB的healthy_threshold跟unhealthy_threshold必须是一样的
+16. NLB不能设置安全组

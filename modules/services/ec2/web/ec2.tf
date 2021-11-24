@@ -67,7 +67,7 @@ resource "aws_security_group" "web" {
 output "ec2_web" {
   value = aws_instance.ec2_web.*.private_ip
 }
-output "instance_id" {
+output "web_id" {
   value = aws_instance.ec2_web.*.id
 }
 output "web_sg" {

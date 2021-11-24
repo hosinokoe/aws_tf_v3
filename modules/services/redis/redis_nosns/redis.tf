@@ -18,7 +18,7 @@ resource "aws_elasticache_parameter_group" "redis-group" {
 # resource "aws_sns_topic" "redis" {
 #   name              = "redis_event"
 #   display_name = var.sns_display_name
-#   # kms_master_key_id = "alias/aws/sns"
+#   kms_master_key_id = "alias/aws/sns"
 # }
 
 # resource "aws_sns_topic_subscription" "redis" {
