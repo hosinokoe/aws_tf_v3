@@ -1,3 +1,4 @@
+# s3_uploads已存在，本代码不新建s3_uploads组
 resource "aws_s3_bucket" "s3_pub" {
   for_each = toset(var.s3_public)
   bucket = each.value
@@ -116,7 +117,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   #  prefix          = "myprefix"
   #}
 
-  aliases = ["${var.aliases[each.key][0]}-assets.stock.matsui-mk.com"]
+  aliases = ["${var.aliases[each.key][0]}-assets.${var.domain}"]
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]

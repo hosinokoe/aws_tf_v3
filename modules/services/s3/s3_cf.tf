@@ -1,3 +1,4 @@
+# s3_v1/s3_v2均无zabbix，本代码无cf
 resource "aws_s3_bucket" "s3_pub" {
   for_each = toset(var.s3_public)
   bucket = each.value
