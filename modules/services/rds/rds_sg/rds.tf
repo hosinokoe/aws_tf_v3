@@ -65,8 +65,25 @@ resource "aws_security_group" "db_sg" {
         from_port = 3306
         to_port = 3306
         protocol = "tcp"
+        description = ""
         # security_groups = [aws_security_group.app.id,var.admin-sg]
         security_groups = var.security_groups
+    }
+    # ingress {
+    #     from_port = 3306
+    #     to_port = 3306
+    #     protocol = "tcp"
+    #     cidr_blocks = [var.matusi_sg]
+    # }
+    dynamic "ingress" {
+      for_each = var.ingress_rules_cidr
+      content {
+        from_port        = 3306
+        to_port          = 3306
+        protocol         = "tcp"
+        description      = lookup(ingress.value, "description")
+        cidr_blocks  = [lookup(ingress.value, "cidr_blocks")]
+      }
     }
     egress {
         from_port = 0

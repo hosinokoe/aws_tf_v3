@@ -24,3 +24,5 @@ GitHub地址: [https://github.com/hosinokoe/aws_tf_v3](https://github.com/hosino
 14. for_each的值必须是已知的，无法引用变量，即使变量是已知的。
 15. NLB的healthy_threshold跟unhealthy_threshold必须是一样的
 16. NLB不能设置安全组
+17. terraform修改rds小版本需要添加apply_immediately才会马上生效
+18. terraform貌似无法import iam user。如果之前已经有代码新建了group，并且有一定用户。那么可以直接import用户名即可，import arn会报错。import的资源包含双引号的话，需要转义。同理用state rm删除iam user时也需要转义

@@ -16,6 +16,8 @@ variable "db_version" { default = "5.7.36" }
 variable "db_para" { default = "5.7" }
 variable "vpc_id" {}
 variable "security_groups" {}
+variable "ingress_rules_cidr" {}
+# variable "matusi_sg" {}
 #variable "admin_sg" {}
 #variable "bat_sg" {}
 

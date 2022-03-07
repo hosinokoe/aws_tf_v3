@@ -1,5 +1,5 @@
 resource "aws_instance" "admin" {
-  # iam_instance_profile = "AmazonSSMRoleForInstancesQuickSetup"
+  iam_instance_profile = "AmazonSSMRoleForInstancesQuickSetup"
   ami = var.ec2_ami
   key_name = var.key
   instance_type = var.admin_type

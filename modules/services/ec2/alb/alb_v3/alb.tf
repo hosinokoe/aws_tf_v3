@@ -1,3 +1,4 @@
+# 从v2复制，目标端口从固定80改为变量
 resource "aws_lb_target_group" "alb_tg" {
   name     = var.alb_tag
   port     = 80
@@ -18,50 +19,50 @@ resource "aws_alb_target_group_attachment" "alb_attach" {
   count = var.web_count
   target_group_arn = aws_lb_target_group.alb_tg.arn
   target_id        = var.target_id[count.index]
-  port             = 80
-}
-
-resource "aws_lb_listener" "alb_listener" {
- load_balancer_arn = aws_lb.alb.arn
- port              = "80"
- protocol          = "HTTP"
- default_action {
-   type             = "forward"
-   target_group_arn = aws_lb_target_group.alb_tg.arn
- }
+  port             = var.instance_port
 }
 
 # resource "aws_lb_listener" "alb_listener" {
-#   #count = var.global_count
-#   load_balancer_arn = aws_lb.alb.arn
-#   port              = "80"
-#   protocol          = "HTTP"
-#   default_action {
-#     type             = "redirect"
-#     target_group_arn = aws_lb_target_group.alb_tg.arn
-#     redirect {
-#     host        = "#{host}"
-#     path        = "/#{path}"
-#     port        = "443"
-#     protocol    = "HTTPS"
-#     query       = "#{query}"
-#     status_code = "HTTP_301"
-#     }
-#   }
+#  load_balancer_arn = aws_lb.alb.arn
+#  port              = "80"
+#  protocol          = "HTTP"
+#  default_action {
+#    type             = "forward"
+#    target_group_arn = aws_lb_target_group.alb_tg.arn
+#  }
 # }
 
-# resource "aws_lb_listener" "alb_listeners" {
-#   #count = var.global_count
-#   load_balancer_arn = aws_lb.alb.arn
-#   port              = "443"
-#   protocol          = "HTTPS"
-#   ssl_policy        = "ELBSecurityPolicy-2016-08"
-#   certificate_arn   = var.alb_cert
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.alb_tg.arn
-#   }
-# }
+resource "aws_lb_listener" "alb_listener" {
+  #count = var.global_count
+  load_balancer_arn = aws_lb.alb.arn
+  port              = "80"
+  protocol          = "HTTP"
+  default_action {
+    type             = "redirect"
+    target_group_arn = aws_lb_target_group.alb_tg.arn
+    redirect {
+    host        = "#{host}"
+    path        = "/#{path}"
+    port        = "443"
+    protocol    = "HTTPS"
+    query       = "#{query}"
+    status_code = "HTTP_301"
+    }
+  }
+}
+
+resource "aws_lb_listener" "alb_listeners" {
+  #count = var.global_count
+  load_balancer_arn = aws_lb.alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = var.alb_cert
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.alb_tg.arn
+  }
+}
 
 resource "aws_lb" "alb" {
   name               = var.alb_tag
@@ -113,4 +114,10 @@ resource "aws_security_group" "alb_sg" {
 #}
 output "alb_sg" {
  value = aws_security_group.alb_sg.id
+}
+output "alb_dns" {
+ value = aws_lb.alb.dns_name
+}
+output "alb_zone" {
+  value = aws_lb.alb.zone_id
 }

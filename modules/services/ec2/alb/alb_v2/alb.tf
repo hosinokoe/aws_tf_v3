@@ -72,7 +72,7 @@ resource "aws_lb" "alb" {
   subnets            = var.azs
   enable_deletion_protection = var.protect_enable
   tags = {
-    Name = "${var.alb_tag}"
+    Name = "${var.alb_tag} alb"
   }
 }
 

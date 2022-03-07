@@ -114,3 +114,9 @@ resource "aws_security_group" "alb_sg" {
 output "alb_sg" {
  value = aws_security_group.alb_sg.id
 }
+output "alb_dns" {
+ value = aws_lb.alb.dns_name
+}
+output "alb_zone" {
+  value = aws_lb.alb.zone_id
+}

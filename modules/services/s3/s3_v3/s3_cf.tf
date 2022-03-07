@@ -1,19 +1,13 @@
-# s3_uploads已存在，本代码不新建s3_uploads组，无zabbix，有cf，cf添加s3权限，s3去除公共访问权限
+# s3_v1/s3_v2均无zabbix，本代码有zabbix，cf证书为aws默认证书
 resource "aws_s3_bucket" "s3_pub" {
   for_each = toset(var.s3_public)
   bucket = each.value
-  # acl    = "public-read"
-  # block_public_policy = true
+  acl    = "public-read"
   tags = {
     Name        = each.value
   #  Environment = "production"
   }
 }
-# resource "null_resource" "this" {
-#   provisioner "local-exec" {
-#     command = "echo ${aws_cloudfront_origin_access_identity.cf_acl} > file_${null_resource.this.id}.txt"
-#   }
-# }
 
 resource "aws_s3_bucket_policy" "s3_pub_acl" {
   for_each = aws_s3_bucket.s3_pub
@@ -25,8 +19,7 @@ resource "aws_s3_bucket_policy" "s3_pub_acl" {
       {
         Sid       = "PublicReadGetObject"
         Effect    = "Allow"
-        # Principal = "*"
-        Principal = {AWS = aws_cloudfront_origin_access_identity.cf_acl[each.key].iam_arn}
+        Principal = "*"
         Action    = "s3:GetObject"
         Resource = "${aws_s3_bucket.s3_pub[each.key].arn}/*"
         # Resource = "${each.key.arn}/*"
@@ -53,24 +46,15 @@ resource "aws_s3_bucket_public_access_block" "s3_pri_acl" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_public_access_block" "s3_pub_user_acl" {
-  for_each = aws_s3_bucket.s3_pub
-  bucket = each.key
-  block_public_acls   = true
-  block_public_policy = true
-  ignore_public_acls = true
-  restrict_public_buckets = true
+resource "aws_iam_user" "zabbix" {
+  name = "zabbix"
+  path = "/users/"
 }
 
-# resource "aws_iam_user" "zabbix" {
-#   name = "zabbix"
-#   path = "/users/"
-# }
-
-# resource "aws_iam_user_policy_attachment" "zabbix" {
-#   user       = aws_iam_user.zabbix.name
-#   policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
-# }
+resource "aws_iam_user_policy_attachment" "zabbix" {
+  user       = aws_iam_user.zabbix.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
+}
 
 resource "aws_iam_user" "s3_uploads" {
   for_each = toset(var.s3_user)
@@ -78,40 +62,35 @@ resource "aws_iam_user" "s3_uploads" {
   path = "/users/"
 }
 
-# resource "aws_iam_group_membership" "team" {
-#   name = "s3_uploads group"
-#   users = var.s3_user
-#   group = "s3_uploads"
-# }
+resource "aws_iam_group_membership" "team" {
+  name = "s3_uploads group"
+  users = var.s3_user
+  group = aws_iam_group.s3_uploads.name
+}
 
-# resource "aws_iam_group" "s3_uploads" {
-#   name = "s3_uploads"
-#   path = "/users/"
-# }
+resource "aws_iam_group" "s3_uploads" {
+  name = "s3_uploads"
+  path = "/users/"
+}
 
-# resource "aws_iam_group_policy" "s3_uploads" {
-#   name        = "s3_uploads"
-#   group = aws_iam_group.s3_uploads.name
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Action = ["s3:ListAllMyBuckets","s3:GetBucketLocation"],
-#         Effect   = "Allow"
-#         "Resource": "arn:aws:s3:::*",
-#       },
-#       {
-#         "Effect" : "Allow",
-#         "Action" : "s3:*",
-#         "Resource": ["arn:aws:s3:::$${aws:username}","arn:aws:s3:::$${aws:username}/*"],
-#       }
-#     ]
-#   })
-# }
-
-resource "aws_cloudfront_origin_access_identity" "cf_acl" {
-  for_each = toset(var.s3_public)
-  comment = each.value
+resource "aws_iam_group_policy" "s3_uploads" {
+  name        = "s3_uploads"
+  group = aws_iam_group.s3_uploads.name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = ["s3:ListAllMyBuckets","s3:GetBucketLocation"],
+        Effect   = "Allow"
+        "Resource": "arn:aws:s3:::*",
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : "s3:*",
+        "Resource": ["arn:aws:s3:::$${aws:username}","arn:aws:s3:::$${aws:username}/*"],
+      }
+    ]
+  })
 }
 
 
@@ -122,9 +101,9 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     # origin_id   = var.s3_origin_id
     origin_id   = "myS3Origin"
 
-    s3_origin_config {
-     origin_access_identity = aws_cloudfront_origin_access_identity.cf_acl[each.key].cloudfront_access_identity_path
-    }
+    #s3_origin_config {
+    #  origin_access_identity = "origin-access-identity/cloudfront/ABCDEFG1234567"
+    #}
   }
 
   enabled             = true
@@ -139,7 +118,6 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   #}
 
   # aliases = ["${var.aliases[each.key][0]}-assets.${var.domain}"]
-  aliases = ["${var.aliases[each.key][0]}"]
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
@@ -175,10 +153,13 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   #   Environment = "stg_test"
   # }
 
+  # viewer_certificate {
+  #   acm_certificate_arn = var.cert
+  #   ssl_support_method = "sni-only"
+  #   minimum_protocol_version = "TLSv1.2_2019"
+  # }
   viewer_certificate {
-    acm_certificate_arn = var.cert
-    ssl_support_method = "sni-only"
-    minimum_protocol_version = "TLSv1.2_2019"
+    cloudfront_default_certificate = true
   }
 }
 
